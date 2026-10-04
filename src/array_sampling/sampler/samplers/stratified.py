@@ -2,12 +2,12 @@ from collections.abc import Callable, Hashable
 from typing import override
 
 from array_sampling.internal.index_drawer import IndexDrawer
-from array_sampling.internal.random_access_array import RandomAccessArray
 from array_sampling.internal.strata import Strata
+from array_sampling.random_access_array import RandomAccessArray
 from array_sampling.random_generator import RandomGenerator
 from array_sampling.replacement_mode import ReplacementMode
 from array_sampling.sampler.allocation_strategy import AllocationStrategy
-from array_sampling.sampler.sampler import Sampler
+from array_sampling.sampler.base import Sampler
 from array_sampling.sampler.stratum_allocator import StratumAllocator
 from array_sampling.sizing.sample_size import SampleSize
 from array_sampling.stratified_sample_result import StratifiedSampleResult

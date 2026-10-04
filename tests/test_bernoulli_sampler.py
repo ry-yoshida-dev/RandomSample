@@ -34,6 +34,11 @@ class TestBernoulliSampler:
         selected: Iterator[int] = sampler.stream(count())
         assert next(selected) < next(selected)
 
+    @pytest.mark.parametrize("probability", [1e-20, 5e-324])
+    def test_tiny_probability_does_not_overflow(self, probability: float) -> None:
+        sampler: BernoulliSampler[int] = BernoulliSampler(probability, RandomGenerator.from_seed(0))
+        assert len(sampler.sample(range(1_000))) == 0
+
     @pytest.mark.parametrize("probability", [-0.1, 1.1, float("nan")])
     def test_invalid_probability_is_rejected(self, probability: float) -> None:
         with pytest.raises(InvalidSampleSizeError):

@@ -1,3 +1,5 @@
+from types import MappingProxyType
+
 import pytest
 
 from array_sampling import (
@@ -7,6 +9,7 @@ from array_sampling import (
     SampleCount,
     SampleFraction,
     StratifiedSampler,
+    UnknownStratumError,
 )
 
 type Record = tuple[str, int]
@@ -44,6 +47,18 @@ class TestStratifiedSampler:
         )
         assert sampler.sample(POPULATION).allocation["pro"] >= 3
 
+    def test_result_is_hashable_and_read_only(self) -> None:
+        sampler = StratifiedSampler(
+            plan_of, SampleCount(4), random_generator=RandomGenerator.from_seed(0)
+        )
+        result = sampler.sample(POPULATION)
+        same_result = StratifiedSampler(
+            plan_of, SampleCount(4), random_generator=RandomGenerator.from_seed(0)
+        ).sample(POPULATION)
+        assert hash(result) == hash(same_result)
+        assert result == same_result
+        assert isinstance(result.strata, MappingProxyType)
+
 
 class TestQuotaSampler:
     def test_quotas_resolve_against_each_stratum(self) -> None:
@@ -60,8 +75,9 @@ class TestQuotaSampler:
 
     def test_unknown_quota_stratum_is_rejected(self) -> None:
         sampler = QuotaSampler(plan_of, {"enterprise": SampleCount(1)})
-        with pytest.raises(KeyError):
+        with pytest.raises(UnknownStratumError) as raised:
             _ = sampler.sample(POPULATION)
+        assert raised.value.strata == ("enterprise",)
 
     def test_quota_above_stratum_size_is_rejected(self) -> None:
         sampler = QuotaSampler(plan_of, {"pro": SampleCount(11)})

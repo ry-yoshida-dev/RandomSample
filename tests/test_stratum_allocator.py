@@ -48,6 +48,26 @@ class TestStratumAllocator:
                 {"a": 1, "b": 1}, 3, ReplacementMode.SWOR
             )
 
+    @pytest.mark.parametrize("replacement", list(ReplacementMode))
+    @pytest.mark.parametrize("strategy", list(AllocationStrategy))
+    def test_empty_strata_receive_zero(
+        self, strategy: AllocationStrategy, replacement: ReplacementMode
+    ) -> None:
+        allocation = StratumAllocator(strategy).allocate({"empty": 0, "full": 10}, 4, replacement)
+        assert allocation == {"empty": 0, "full": 4}
+
+    def test_all_empty_strata_with_replacement_are_rejected(self) -> None:
+        with pytest.raises(InsufficientPopulationError):
+            _ = StratumAllocator(AllocationStrategy.PROPORTIONAL).allocate(
+                {"a": 0}, 1, ReplacementMode.SWR
+            )
+
+    def test_negative_stratum_size_is_rejected(self) -> None:
+        with pytest.raises(InvalidSampleSizeError):
+            _ = StratumAllocator(AllocationStrategy.EQUAL).allocate(
+                {"a": -1, "b": 5}, 1, ReplacementMode.SWOR
+            )
+
     def test_with_replacement_is_not_capped(self) -> None:
         allocation = StratumAllocator(AllocationStrategy.EQUAL).allocate(
             {"a": 1, "b": 1}, 10, ReplacementMode.SWR

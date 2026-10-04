@@ -46,7 +46,7 @@ breakdown.
 
 | Component | Responsibility |
 | --- | --- |
-| [sampler.py](sampler.py) | Abstract base class shared by every sampler. |
+| [base.py](base.py) | Abstract base class shared by every sampler. |
 | [samplers/](samplers/README.md) | Concrete `Sampler` subclasses. |
 | [stratum_allocator.py](stratum_allocator.py) | Splits a total into per-stratum counts. |
 | [allocation_strategy.py](allocation_strategy.py) | `PROPORTIONAL` / `EQUAL` allocation rules. |

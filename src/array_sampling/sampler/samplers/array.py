@@ -2,12 +2,12 @@ from collections.abc import Callable
 from typing import override
 
 from array_sampling.internal.index_drawer import IndexDrawer
-from array_sampling.internal.random_access_array import RandomAccessArray
 from array_sampling.internal.weight_validator import WeightValidator
+from array_sampling.random_access_array import RandomAccessArray
 from array_sampling.random_generator import RandomGenerator
 from array_sampling.replacement_mode import ReplacementMode
 from array_sampling.sample_result import SampleResult
-from array_sampling.sampler.sampler import Sampler
+from array_sampling.sampler.base import Sampler
 from array_sampling.sizing.sample_size import SampleSize
 
 

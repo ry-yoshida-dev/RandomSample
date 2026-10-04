@@ -1,4 +1,5 @@
 import math
+import sys
 from collections.abc import Iterable, Iterator
 from itertools import islice
 from typing import override
@@ -6,7 +7,7 @@ from typing import override
 from array_sampling.exceptions import InvalidSampleSizeError
 from array_sampling.random_generator import RandomGenerator
 from array_sampling.sample_result import SampleResult
-from array_sampling.sampler.sampler import Sampler
+from array_sampling.sampler.base import Sampler
 
 
 class BernoulliSampler[T](Sampler[T]):
@@ -87,10 +88,12 @@ class BernoulliSampler[T](Sampler[T]):
             yield from positioned_items
             return
         log_rejection_probability: float = math.log1p(-self._probability)
+        maximum_skip: int = sys.maxsize - 1
         while True:
-            skip: int = math.floor(
+            raw_skip: float = (
                 math.log(self._random_generator.open_unit_interval()) / log_rejection_probability
             )
+            skip: int = maximum_skip if raw_skip >= maximum_skip else math.floor(raw_skip)
             selected: list[tuple[int, T]] = list(islice(positioned_items, skip, skip + 1))
             if not selected:
                 return

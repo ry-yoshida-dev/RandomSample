@@ -2,7 +2,7 @@ from collections.abc import Callable, Hashable, Mapping
 from typing import Self
 
 from array_sampling.internal.index_drawer import IndexDrawer
-from array_sampling.internal.random_access_array import RandomAccessArray
+from array_sampling.random_access_array import RandomAccessArray
 from array_sampling.replacement_mode import ReplacementMode
 from array_sampling.sample_result import SampleResult
 from array_sampling.stratified_sample_result import StratifiedSampleResult

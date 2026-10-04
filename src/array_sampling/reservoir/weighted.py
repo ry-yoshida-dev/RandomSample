@@ -11,7 +11,7 @@ class WeightedReservoir[T]:
     """Incremental weighted fixed-size sample of a stream, without replacement.
 
     Implements Efraimidis-Spirakis A-Res: each element receives the key
-    ``log(u) / w`` and a min-heap keeps the ``k`` largest keys, giving
+    ``log(w) - log(-log(u))`` and a min-heap keeps the ``k`` largest keys, giving
     ``O(k)`` memory and ``O(log k)`` time per element. Use it when elements
     arrive one by one; ``WeightedReservoirSampler`` wraps it for a single
     pass over an iterable.

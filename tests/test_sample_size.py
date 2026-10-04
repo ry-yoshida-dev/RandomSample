@@ -1,7 +1,6 @@
 import pytest
 
-from array_sampling import InvalidSampleSizeError, SampleCount, SampleFraction
-from array_sampling.sizing.utils import RoundingMode
+from array_sampling import InvalidSampleSizeError, RoundingMode, SampleCount, SampleFraction
 
 
 class TestSampleSize:
@@ -25,7 +24,7 @@ class TestSampleSize:
         with pytest.raises(InvalidSampleSizeError):
             _ = SampleCount(invalid_count)
 
-    @pytest.mark.parametrize("invalid_fraction", [-0.1, float("nan"), float("inf")])
+    @pytest.mark.parametrize("invalid_fraction", [-0.1, float("nan"), float("inf"), True])
     def test_invalid_fraction_is_rejected(self, invalid_fraction: float) -> None:
         with pytest.raises(InvalidSampleSizeError):
             _ = SampleFraction(invalid_fraction)

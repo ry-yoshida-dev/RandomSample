@@ -18,7 +18,7 @@ time. For a single pass over an iterable, use `ReservoirSampler` or
 | Component | Responsibility |
 | --- | --- |
 | [uniform.py](uniform.py) | `UniformReservoir`: uniform reservoir using Li's Algorithm L, which skips elements instead of drawing per element. |
-| [weighted.py](weighted.py) | `WeightedReservoir`: weighted reservoir without replacement (Efraimidis-Spirakis A-Res, log-space keys in a top-k heap). |
+| [weighted.py](weighted.py) | `WeightedReservoir`: weighted reservoir without replacement (Efraimidis-Spirakis A-Res, Gumbel-form keys in a top-k heap). |
 
 ## Examples
 

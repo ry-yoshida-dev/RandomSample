@@ -94,6 +94,18 @@ class TestArraySampler:
         )
         assert first_draws["b"] / 20_000 == pytest.approx(0.75, abs=0.02)
 
+    def test_tiny_weights_keep_their_ratio(self) -> None:
+        weights: dict[str, float] = {"a": 5e-324, "b": 1.5e-323}
+        sampler = ArraySampler(
+            SampleCount(1),
+            weight_of=weights.__getitem__,
+            random_generator=RandomGenerator.from_seed(7),
+        )
+        first_draws: Counter[str] = Counter(
+            sampler.sample(["a", "b"]).items[0] for _ in range(20_000)
+        )
+        assert first_draws["b"] / 20_000 == pytest.approx(0.75, abs=0.02)
+
     @pytest.mark.parametrize("invalid_weight", [-1.0, float("nan"), float("inf")])
     def test_invalid_weights_are_rejected(self, invalid_weight: float) -> None:
         weights: dict[str, float] = {"a": 1.0, "b": invalid_weight}

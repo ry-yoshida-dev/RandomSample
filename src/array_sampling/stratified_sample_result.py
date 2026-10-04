@@ -1,6 +1,7 @@
 from collections.abc import Hashable, Mapping
 from dataclasses import dataclass
-from typing import Self
+from types import MappingProxyType
+from typing import Self, override
 
 from array_sampling.sample_result import SampleResult
 
@@ -11,7 +12,8 @@ class StratifiedSampleResult[T, K: Hashable](SampleResult[T]):
 
     ``items`` and ``indices`` hold every selected element, concatenated
     stratum by stratum, so the result can be used wherever a
-    ``SampleResult`` is expected.
+    ``SampleResult`` is expected. The result is hashable whenever its items
+    are.
 
     Parameters
     ----------
@@ -38,13 +40,18 @@ class StratifiedSampleResult[T, K: Hashable](SampleResult[T]):
         Returns
         -------
         Self
-            Result whose flat view follows the iteration order of ``strata``.
+            Result whose flat view follows the iteration order of ``strata``
+            and whose ``strata`` is a read-only copy.
         """
         return cls(
             items=tuple(item for result in strata.values() for item in result.items),
             indices=tuple(index for result in strata.values() for index in result.indices),
-            strata=strata,
+            strata=MappingProxyType(dict(strata)),
         )
+
+    @override
+    def __hash__(self) -> int:
+        return hash((self.items, self.indices, tuple(self.strata.items())))
 
     @property
     def allocation(self) -> dict[K, int]:

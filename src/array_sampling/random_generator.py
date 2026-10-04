@@ -51,10 +51,12 @@ class RandomGenerator:
         return value
 
     def weighted_key(self, weight: float) -> float:
-        """Draw an Efraimidis-Spirakis priority key in log space.
+        """Draw an Efraimidis-Spirakis priority key in Gumbel form.
 
         Keeping the ``k`` largest keys yields a weighted sample without
-        replacement. The log form avoids the underflow of ``u ** (1 / w)``.
+        replacement. The key ``log(w) - log(-log(u))`` orders elements exactly
+        like ``u ** (1 / w)`` but neither underflows for large weights nor
+        overflows for tiny ones.
 
         Parameters
         ----------
@@ -64,9 +66,9 @@ class RandomGenerator:
         Returns
         -------
         float
-            Non-positive key; larger keys win.
+            Finite key; larger keys win.
         """
-        return math.log(self.open_unit_interval()) / weight
+        return math.log(weight) - math.log(-math.log(self.open_unit_interval()))
 
     def random_index(self, size: int) -> int:
         """Draw a uniform integer from ``range(size)``.

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from array_sampling.internal.random_access_array import RandomAccessArray
+from array_sampling.random_access_array import RandomAccessArray
 from array_sampling.random_generator import RandomGenerator
 from array_sampling.sample_result import SampleResult
 

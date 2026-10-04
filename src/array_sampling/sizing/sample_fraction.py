@@ -4,8 +4,8 @@ from fractions import Fraction
 from typing import override
 
 from array_sampling.exceptions import InvalidSampleSizeError
+from array_sampling.sizing.rounding_mode import RoundingMode
 from array_sampling.sizing.sample_size import SampleSize
-from array_sampling.sizing.utils.rounding_mode import RoundingMode
 
 
 @dataclass(frozen=True, slots=True)
@@ -26,14 +26,14 @@ class SampleFraction(SampleSize):
     Raises
     ------
     InvalidSampleSizeError
-        If ``value`` is negative or not finite.
+        If ``value`` is negative, not finite, or a boolean.
     """
 
     value: float
     rounding_mode: RoundingMode = RoundingMode.NEAREST
 
     def __post_init__(self) -> None:
-        if not math.isfinite(self.value) or self.value < 0.0:
+        if isinstance(self.value, bool) or not math.isfinite(self.value) or self.value < 0.0:
             raise InvalidSampleSizeError(
                 f"Sample fraction must be a finite non-negative number, got {self.value!r}."
             )

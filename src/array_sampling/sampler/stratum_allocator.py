@@ -12,7 +12,8 @@ class StratumAllocator:
     Fractional shares are rounded with the largest remainder (Hamilton)
     method, so the counts always add up to the requested total. When sampling
     without replacement, strata are capped at their size and the overflow is
-    redistributed among the remaining strata.
+    redistributed among the remaining strata. Empty strata always receive
+    zero.
 
     Parameters
     ----------
@@ -47,8 +48,8 @@ class StratumAllocator:
         Parameters
         ----------
         stratum_sizes : Mapping[K, int]
-            Number of population elements in each stratum. Iteration order is
-            used to break ties deterministically.
+            Non-negative number of population elements in each stratum.
+            Iteration order is used to break ties deterministically.
         total : int
             Total number of elements to draw.
         replacement : ReplacementMode
@@ -62,12 +63,19 @@ class StratumAllocator:
         Raises
         ------
         InvalidSampleSizeError
-            If ``total`` is negative or smaller than the guaranteed minimums.
+            If ``total`` or a stratum size is negative, or ``total`` is smaller
+            than the guaranteed minimums.
         InsufficientPopulationError
-            If ``total`` exceeds the population size without replacement.
+            If ``total`` exceeds the population size without replacement, or
+            every stratum is empty.
         """
         if total < 0:
             raise InvalidSampleSizeError(f"Total sample size must be non-negative, got {total}.")
+        negative_strata: list[K] = [stratum for stratum, size in stratum_sizes.items() if size < 0]
+        if negative_strata:
+            raise InvalidSampleSizeError(
+                f"Stratum sizes must be non-negative, got negative sizes for {negative_strata!r}."
+            )
         capacities: dict[K, int] = self._capacities(stratum_sizes, total, replacement)
         allocation: dict[K, int] = {
             stratum: min(self._minimum_per_stratum, capacity)
@@ -101,9 +109,11 @@ class StratumAllocator:
     ) -> dict[K, int]:
         match replacement:
             case ReplacementMode.SWR:
-                if total > 0 and not stratum_sizes:
+                if total > 0 and not any(stratum_sizes.values()):
                     raise InsufficientPopulationError(requested=total, available=0)
-                return dict.fromkeys(stratum_sizes, total)
+                return {
+                    stratum: total if size > 0 else 0 for stratum, size in stratum_sizes.items()
+                }
             case ReplacementMode.SWOR:
                 population_size: int = sum(stratum_sizes.values())
                 if total > population_size:

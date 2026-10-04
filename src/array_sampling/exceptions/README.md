@@ -11,7 +11,8 @@ ValueError
 └── SamplingError
     ├── InvalidSampleSizeError
     ├── InvalidWeightError
-    └── InsufficientPopulationError  (exposes .requested / .available)
+    ├── InsufficientPopulationError  (exposes .requested / .available)
+    └── UnknownStratumError          (exposes .strata)
 ```
 
 ## Components
@@ -22,3 +23,4 @@ ValueError
 | [invalid_sample_size_error.py](invalid_sample_size_error.py) | Invalid count, fraction, capacity, or probability. |
 | [invalid_weight_error.py](invalid_weight_error.py) | Negative or non-finite weights. |
 | [insufficient_population_error.py](insufficient_population_error.py) | Population too small for the requested sample. |
+| [unknown_stratum_error.py](unknown_stratum_error.py) | Quota for a stratum absent from the population. |

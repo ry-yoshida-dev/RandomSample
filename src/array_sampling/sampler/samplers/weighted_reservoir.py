@@ -5,7 +5,7 @@ from array_sampling.exceptions import InvalidSampleSizeError
 from array_sampling.random_generator import RandomGenerator
 from array_sampling.reservoir import WeightedReservoir
 from array_sampling.sample_result import SampleResult
-from array_sampling.sampler.sampler import Sampler
+from array_sampling.sampler.base import Sampler
 
 
 class WeightedReservoirSampler[T](Sampler[T]):
