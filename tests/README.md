@@ -17,3 +17,4 @@ checks with loose tolerances, and fail-fast error handling.
 | [test_bernoulli_sampler.py](test_bernoulli_sampler.py) | Rate-based sampling, eager and lazy. |
 | [test_stratum_allocator.py](test_stratum_allocator.py) | Allocation rounding, capping, and minimums. |
 | [test_stratified_sampler.py](test_stratified_sampler.py) | Stratified and quota sampling. |
+| [test_batch_index_sampler.py](test_batch_index_sampler.py) | Batched NumPy index sampling, both strategies. |
