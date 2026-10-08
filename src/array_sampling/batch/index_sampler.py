@@ -1,3 +1,5 @@
+from typing import Final
+
 import numpy as np
 from numpy.typing import NDArray
 
@@ -9,36 +11,35 @@ class BatchIndexSampler:
     """Draw many uniform index samples without replacement at once.
 
     ``numpy.random.Generator.choice(..., replace=False)`` draws one sample per
-    call, so a batch of samples costs one Python round trip each. For small
-    ``count`` this class instead draws the whole batch in ``count`` vectorised
-    steps. Step ``j`` draws a rank ``r`` uniformly from the ``population - j``
-    indices not chosen yet, then walks it past the indices already chosen, in
-    ascending order, so that it lands on the ``r``-th unchosen index. Every
-    subset of size ``count`` is therefore equally likely, exactly as with
-    ``choice``. Each step costs ``O(B * j)``, so for large ``count`` the
-    sampler falls back to one ``choice`` call per row.
+    call, so a batch of samples costs one Python round trip each. The
+    vectorised strategy instead draws the whole batch in ``count`` steps. Step
+    ``j`` draws a rank ``r`` uniformly from the ``population - j`` indices not
+    chosen yet, then walks it past the indices already chosen, in ascending
+    order, so that it lands on the ``r``-th unchosen index. Every subset of
+    size ``count`` is therefore equally likely, exactly as with ``choice``.
+    Each step costs ``O(j)`` NumPy calls, so with ``BatchStrategy.AUTOMATIC``
+    the sampler falls back to one ``choice`` call per row whenever that is
+    estimated to be faster.
 
     Parameters
     ----------
     generator : numpy.random.Generator
         Source of randomness.
-    max_vectorised_count : int, default 32
-        Largest ``count`` drawn with the vectorised strategy; larger counts are
-        drawn row by row.
-
-    Raises
-    ------
-    InvalidSampleSizeError
-        If ``max_vectorised_count`` is negative.
+    strategy : BatchStrategy, default BatchStrategy.AUTOMATIC
+        How each batch is drawn.
     """
 
-    def __init__(self, generator: np.random.Generator, max_vectorised_count: int = 32) -> None:
-        if max_vectorised_count < 0:
-            raise InvalidSampleSizeError(
-                f"max_vectorised_count must be non-negative, got {max_vectorised_count}."
-            )
+    _VECTORISED_CALL_NANOSECONDS: Final[int] = 1300
+    _VECTORISED_ELEMENT_NANOSECONDS: Final[int] = 2
+    _PER_ROW_NANOSECONDS: Final[int] = 3500
+
+    def __init__(
+        self,
+        generator: np.random.Generator,
+        strategy: BatchStrategy = BatchStrategy.AUTOMATIC,
+    ) -> None:
         self._generator: np.random.Generator = generator
-        self._max_vectorised_count: int = max_vectorised_count
+        self._strategy: BatchStrategy = strategy
 
     def sample(self, population_sizes: NDArray[np.integer], count: int) -> NDArray[np.intp]:
         """Draw ``count`` distinct indices from ``range(population)`` for every row.
@@ -63,21 +64,25 @@ class BatchIndexSampler:
             If ``population_sizes`` is not one-dimensional, holds a negative size,
             or holds a size larger than ``numpy.intp`` can represent.
         InvalidSampleSizeError
-            If ``count`` is negative.
+            If ``count`` is negative or a boolean.
         InsufficientPopulationError
             If ``count`` exceeds a population size.
         """
         sizes: NDArray[np.intp] = self._validate_population_sizes(population_sizes)
-        if count < 0:
-            raise InvalidSampleSizeError(f"count must be non-negative, got {count}.")
+        if isinstance(count, bool) or count < 0:
+            raise InvalidSampleSizeError(f"count must be a non-negative integer, got {count!r}.")
         if sizes.size > 0:
             smallest_size: int = int(np.min(sizes))
             if smallest_size < count:
                 raise InsufficientPopulationError(requested=count, available=smallest_size)
-        match self._select_strategy(count):
+        match self._strategy:
             case BatchStrategy.VECTORISED:
                 return self._sample_vectorised(sizes, count)
             case BatchStrategy.PER_ROW:
+                return self._sample_per_row(sizes, count)
+            case BatchStrategy.AUTOMATIC:
+                if self._is_vectorised_faster(len(sizes), count):
+                    return self._sample_vectorised(sizes, count)
                 return self._sample_per_row(sizes, count)
 
     @staticmethod
@@ -98,10 +103,13 @@ class BatchIndexSampler:
                 raise ValueError(f"population_sizes must not exceed {largest_allowed_size}.")
         return population_sizes.astype(np.intp, copy=False)
 
-    def _select_strategy(self, count: int) -> BatchStrategy:
-        if count <= self._max_vectorised_count:
-            return BatchStrategy.VECTORISED
-        return BatchStrategy.PER_ROW
+    @classmethod
+    def _is_vectorised_faster(cls, row_count: int, count: int) -> bool:
+        vectorised_cost: int = count**2 * (
+            cls._VECTORISED_CALL_NANOSECONDS + cls._VECTORISED_ELEMENT_NANOSECONDS * row_count
+        )
+        per_row_cost: int = cls._PER_ROW_NANOSECONDS * row_count
+        return vectorised_cost < per_row_cost
 
     def _sample_vectorised(self, sizes: NDArray[np.intp], count: int) -> NDArray[np.intp]:
         row_count: int = len(sizes)

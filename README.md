@@ -23,7 +23,7 @@ Requires Python 3.12+.
 | Stream, fixed rate | `BernoulliSampler` | `O(1)` with `stream` |
 | Groups must be represented | `StratifiedSampler` | `O(n)` indices |
 | Explicit size per group | `QuotaSampler` | `O(n)` indices |
-| Many small index samples at once (NumPy) | `array_sampling.batch.BatchIndexSampler` | `O(Bk²)` for small `k`, else `O(Bk)` |
+| Many small index samples at once (NumPy) | `array_sampling.batch.BatchIndexSampler` | `O(Bk)` |
 
 `array_sampling.batch` requires the `numpy` extra: `pip install "array-sampling[numpy]"`.
 

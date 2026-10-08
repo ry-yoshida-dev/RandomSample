@@ -9,17 +9,19 @@ stays dependency-free, so this package is not re-exported from
 `array_sampling`.
 
 `BatchIndexSampler` draws `B` samples of `k` distinct indices, uniformly over
-subsets, with a population size per row. For `k <= max_vectorised_count`
-(default 32) it runs `k` vectorised steps costing `O(B·k²)` in total; above
-that it calls `Generator.choice` once per row (`O(B·k)` plus Python overhead
-per row), which is faster for large `k`.
+subsets, with a population size per row. `BatchStrategy.VECTORISED` runs `k`
+NumPy steps, about `k²` NumPy calls over `B` elements each, so it wins for
+large batches with small `k`. `BatchStrategy.PER_ROW` calls `Generator.choice`
+once per row, which wins for small batches or large `k`. The default,
+`BatchStrategy.AUTOMATIC`, picks between them per call from a running-time
+estimate based on both `B` and `k`.
 
 ## Components
 
 | Component | Responsibility |
 | --- | --- |
 | [index_sampler.py](index_sampler.py) | Batched uniform index sampling without replacement. |
-| [batch_strategy.py](batch_strategy.py) | Vectorised versus per-row drawing strategy. |
+| [batch_strategy.py](batch_strategy.py) | Automatic, vectorised, or per-row drawing strategy. |
 
 ## Examples
 
