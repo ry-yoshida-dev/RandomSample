@@ -6,6 +6,10 @@ resolution-markers = [
     "python_full_version < '3.15'",
 ]
 
+[options]
+exclude-newer = "2026-10-31T12:57:59.717998Z"
+exclude-newer-span = "P7D"
+
 [[package]]
 name = "array-sampling"
 version = "0.1.0"

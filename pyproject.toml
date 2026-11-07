@@ -48,3 +48,6 @@ ignore = ["PLR2004"]
 
 [tool.ruff.lint.pylint]
 max-args = 7
+
+[tool.uv]
+exclude-newer = "7 days"
