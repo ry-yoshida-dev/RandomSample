@@ -2,23 +2,14 @@
 
 ## Overview
 
-Reservoir sampling keeps a uniform (or weighted) sample of fixed size `k`
-from a stream whose length is unknown, reading each element once and holding
-only `k` elements in memory. The reservoir is the fixed-size container of the
-current candidates: every new element may replace one of them, and the final
-contents are a valid sample of everything seen.
-
-The classes here are stateful and push-based: feed elements with `add` or
-`extend` as they arrive and read the current sample with `result` at any
-time. For a single pass over an iterable, use `ReservoirSampler` or
-`WeightedReservoirSampler` from `array_sampling.sampler`, which wrap them.
+Stateful, push-based reservoirs that keep a fixed-size sample of a stream of unknown length: feed elements with `add` or `extend` and read the current sample with `result` at any time. For a single pass over an iterable, use `ReservoirSampler` or `WeightedReservoirSampler` from [sampler/](../sampler/README.md).
 
 ## Components
 
 | Component | Responsibility |
 | --- | --- |
-| [uniform.py](uniform.py) | `UniformReservoir`: uniform reservoir using Li's Algorithm L, which skips elements instead of drawing per element. |
-| [weighted.py](weighted.py) | `WeightedReservoir`: weighted reservoir without replacement (Efraimidis-Spirakis A-Res, Gumbel-form keys in a top-k heap). |
+| [uniform.py](uniform.py) | `UniformReservoir`: uniform reservoir (Algorithm L). |
+| [weighted.py](weighted.py) | `WeightedReservoir`: weighted reservoir without replacement (A-Res). |
 
 ## Examples
 

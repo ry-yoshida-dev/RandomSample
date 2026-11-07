@@ -2,9 +2,7 @@
 
 ## Overview
 
-Specifications of how many elements a sampler draws. Every name here is
-re-exported from `array_sampling`. Subclass `SampleSize` to define a custom
-sizing rule.
+Specifications of how many elements a sampler draws. Subclass `SampleSize` to define a custom sizing rule.
 
 ## Components
 

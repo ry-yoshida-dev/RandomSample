@@ -2,8 +2,7 @@
 
 ## Overview
 
-Low-level helpers used by the samplers. They are implementation details and
-are not part of the public API.
+Low-level helpers used by the samplers. Not part of the public API.
 
 ## Components
 

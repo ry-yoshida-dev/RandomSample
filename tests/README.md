@@ -2,8 +2,7 @@
 
 ## Overview
 
-Pytest suite covering deterministic behaviour (seeded), statistical sanity
-checks with loose tolerances, and fail-fast error handling.
+Pytest suite covering seeded deterministic behaviour, statistical sanity checks, and error handling.
 
 ## Components
 

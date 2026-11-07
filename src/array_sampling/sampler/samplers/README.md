@@ -2,10 +2,7 @@
 
 ## Overview
 
-Concrete implementations of `Sampler[T]`. Each one is configured through its
-constructor and draws with `sample(population)`, so they are interchangeable
-wherever a `Sampler[T]` is expected. See the [parent README](../README.md) for
-the algorithms and their complexity.
+Concrete implementations of `Sampler[T]`.
 
 ## Components
 

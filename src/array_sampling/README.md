@@ -2,12 +2,7 @@
 
 ## Overview
 
-Public package. Every public name is importable from `array_sampling`:
-samplers, reservoirs, sample sizes (`SampleSize`, `SampleCount`,
-`SampleFraction`, `RoundingMode`), `RandomAccessArray`, `RandomGenerator`,
-`ReplacementMode`, `SampleResult`, `StratifiedSampleResult`, and exceptions.
-`internal` holds implementation details only. `batch` needs the `numpy` extra
-and is imported from `array_sampling.batch`.
+Public package. Every public name is importable from `array_sampling`, except `batch`, which needs the `numpy` extra and is imported from `array_sampling.batch`.
 
 ## Components
 
@@ -24,14 +19,3 @@ and is imported from `array_sampling.batch`.
 | [replacement_mode.py](replacement_mode.py) | With / without replacement switch. |
 | [sample_result.py](sample_result.py) | Selected items aligned with their source positions. |
 | [stratified_sample_result.py](stratified_sample_result.py) | `SampleResult` with a per-stratum breakdown. |
-
-## Examples
-
-```python
-from array_sampling import ArraySampler, RandomGenerator, SampleCount
-
-sampler: ArraySampler[int] = ArraySampler(
-    SampleCount(10), random_generator=RandomGenerator.from_seed(42)
-)
-sampler.sample(range(1_000))
-```

@@ -2,18 +2,7 @@
 
 ## Overview
 
-Exception hierarchy of the library. Every error derives from `SamplingError`,
-which itself derives from `ValueError`, so callers can catch either the
-library-specific base class or the built-in exception.
-
-```text
-ValueError
-└── SamplingError
-    ├── InvalidSampleSizeError
-    ├── InvalidWeightError
-    ├── InsufficientPopulationError  (exposes .requested / .available)
-    └── UnknownStratumError          (exposes .strata)
-```
+Exception hierarchy of the library. Every error derives from `SamplingError`, which derives from `ValueError`.
 
 ## Components
 

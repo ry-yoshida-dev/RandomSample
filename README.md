@@ -2,18 +2,7 @@
 
 ## Overview
 
-Practical, dependency-free sampling utilities for arrays and streams.
-
-- **Basic extraction**: uniform or weighted sampling, with or without
-  replacement, sized by absolute count or by fraction.
-- **Large data and streams**: index-only sampling of lazy arrays and
-  single-pass reservoir / Bernoulli sampling with bounded memory.
-- **Production features**: stratified sampling with allocation strategies,
-  per-stratum quotas, reproducible seeding, and a fail-fast error hierarchy.
-
-Requires Python 3.12+.
-
-## Choosing a sampler
+Dependency-free sampling utilities for arrays and streams: uniform or weighted sampling with or without replacement, index-only sampling of lazy arrays, single-pass reservoir and Bernoulli sampling, and stratified sampling with allocation strategies and quotas. Every sampler derives from `Sampler[T]`, is configured in its constructor, and returns a `SampleResult[T]` from `sample(population)`, so samplers are interchangeable.
 
 | Situation | Sampler | Memory |
 | --- | --- | --- |
@@ -25,13 +14,16 @@ Requires Python 3.12+.
 | Explicit size per group | `QuotaSampler` | `O(n)` indices |
 | Many small index samples at once (NumPy) | `array_sampling.batch.BatchIndexSampler` | `O(Bk)` |
 
-`array_sampling.batch` requires the `numpy` extra: `pip install "array-sampling[numpy]"`.
+## Installation
 
-## Examples
+Requires Python 3.12+.
 
-Every sampler derives from `Sampler[T]`: it is configured once in its
-constructor and `sample(population)` returns a `SampleResult[T]`, so samplers
-are interchangeable.
+```bash
+pip install .
+pip install ".[numpy]"  # for array_sampling.batch
+```
+
+## Usage
 
 ```python
 from array_sampling import (
@@ -41,41 +33,20 @@ from array_sampling import (
     ReservoirSampler,
     SampleCount,
     SampleFraction,
-    Sampler,
-    SamplingError,
     StratifiedSampler,
 )
 
 random_generator = RandomGenerator.from_seed(42)
 
-uniform: ArraySampler[int] = ArraySampler(SampleCount(10), random_generator=random_generator)
-uniform.sample(range(1_000))
+ArraySampler(SampleCount(10), random_generator=random_generator).sample(range(1_000))
 
 weights = {"a": 5.0, "b": 1.0, "c": 1.0}
 ArraySampler(SampleCount(2), weight_of=weights.__getitem__).sample(["a", "b", "c"])
 
-bootstrap: ArraySampler[str] = ArraySampler(SampleFraction(1.0), replacement=ReplacementMode.SWR)
-bootstrap.sample(["a", "b", "c"])
+ArraySampler(SampleFraction(1.0), replacement=ReplacementMode.SWR).sample(["a", "b", "c"])
 
-reservoir: ReservoirSampler[int] = ReservoirSampler(100, random_generator)
-reservoir.sample(range(10_000_000)).items
+ReservoirSampler(100, random_generator).sample(range(10_000_000)).items
 
 records = [("free", 1), ("free", 2), ("pro", 3), ("pro", 4)]
-by_plan: Sampler[tuple[str, int]] = StratifiedSampler(lambda record: record[0], SampleCount(2))
-by_plan.sample(records)
-
-try:
-    uniform.sample([1, 2])
-except SamplingError as error:
-    print(error)
-```
-
-## Development
-
-```bash
-uv sync
-uv run pytest
-uv run mypy
-uv run basedpyright
-uv run ruff check .
+StratifiedSampler(lambda record: record[0], SampleCount(2)).sample(records)
 ```
